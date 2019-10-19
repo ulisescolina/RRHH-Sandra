@@ -1,0 +1,44 @@
+pgdata:
+  image: crulises/rrhh-sandra:datos
+  container_name: rrhh-sz-datos-v
+  command: "true"
+  volumes:
+   - ./docker-data/pgdata:/var/lib/postgresql/data
+   - ./docker-data/toba:/var/local/docker-data/toba
+
+app:
+  image: siutoba/docker-toba
+  container_name: rrhh-sz-app
+  ports:
+   - "2020:80"
+  env_file: docker.env
+  environment:
+    TOBA_DIR: /var/local/toba
+    TOBA_INSTALACION_DIR: /var/local/toba/docker-data/instalacion
+    TOBA_PROYECTO                     : nominas
+    TOBA_BASE_NOMBRE                  : siu
+    TOBA_BASE_HOST                    : pg
+    TOBA_PROYECTO_DIR                 : /var/local/toba/proyectos/nominas
+    TOBA_PROYECTO_ALIAS               : /nominas
+    TOBA_PROYECTO_INSTALAR            : "false"
+    TOBA_INSTALAR_REFERENCIA          : "false"
+    TOBA_INSTALAR_USUARIOS            : "false"
+  links:
+   - pg
+  volumes_from:
+   - pgdata
+  volumes:
+   - .:/var/local/toba
+
+pg:
+  tty: true
+  container_name: rrhh-sz-datos
+  image: crulises/rrhh-sandra:datos
+  ports:
+   - "4432:5432"
+  environment:
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    POSTGRES_DB: siu
+  volumes_from:
+   - pgdata
